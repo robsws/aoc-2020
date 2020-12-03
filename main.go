@@ -10,7 +10,7 @@ import (
 
 func main() {
 	filename := os.Args[1]
-	daytwoparttwo(filename)
+	daythreepartone(filename)
 }
 
 func dayonepartone(filename string) {
@@ -87,4 +87,43 @@ func daytwoparttwo(filename string) {
 		}
 	}
 	fmt.Println(valids)
+}
+
+func daythreepartone(filename string) {
+	resultStream := make(chan int)
+	go countTrees(filename, 3, 1, resultStream)
+	trees := <-resultStream
+	fmt.Println(trees)
+}
+
+func daythreeparttwo(filename string) {
+	resultStream := make(chan int)
+	go countTrees(filename, 1, 1, resultStream)
+	go countTrees(filename, 3, 1, resultStream)
+	go countTrees(filename, 5, 1, resultStream)
+	go countTrees(filename, 7, 1, resultStream)
+	go countTrees(filename, 1, 2, resultStream)
+	trees := 1
+	for i := 0; i < 5; i++ {
+		trees *= <-resultStream
+	}
+	fmt.Println(trees)
+}
+
+func countTrees(filename string, dx int, dy int, resultStream chan int) {
+	fileStream := make(chan string)
+	go files.StreamLines(filename, fileStream)
+	x := 0
+	y := 0
+	trees := 0
+	for line := range fileStream {
+		if y%dy == 0 {
+			if line[x] == '#' {
+				trees++
+			}
+			x = (x + dx) % len(line)
+		}
+		y++
+	}
+	resultStream <- trees
 }
