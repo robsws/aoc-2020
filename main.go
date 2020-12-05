@@ -3,14 +3,16 @@ package main
 import (
 	"aoc-2020/files"
 	"fmt"
+	"log"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 )
 
 func main() {
 	filename := os.Args[1]
-	dayfourparttwo(filename)
+	dayfiveparttwo(filename)
 }
 
 func dayonepartone(filename string) {
@@ -230,9 +232,8 @@ func validateHeight(h string) bool {
 	height, _ := strconv.Atoi(submatches[1])
 	if submatches[2] == "cm" {
 		return height >= 150 && height <= 193
-	} else {
-		return height >= 59 && height <= 76
 	}
+	return height >= 59 && height <= 76
 }
 
 func validateHairColour(c string) bool {
@@ -248,4 +249,98 @@ func validateEyeColour(c string) bool {
 func validatePassportNumber(n string) bool {
 	re := regexp.MustCompile("^[0-9]{9}$")
 	return re.MatchString(n)
+}
+
+func dayfivepartone(filename string) {
+	fileStream := make(chan string)
+	go files.StreamLines(filename, fileStream)
+	passes := make([]boardingPass, 0)
+	for line := range fileStream {
+		passes = append(passes, parseBoardingPass(line))
+	}
+	sort.Sort(sort.Reverse(bySeatID(passes)))
+	fmt.Println(passes[0].CalcSeatID())
+}
+
+func dayfiveparttwo(filename string) {
+	fileStream := make(chan string)
+	go files.StreamLines(filename, fileStream)
+	passes := make([]boardingPass, 0)
+	for line := range fileStream {
+		passes = append(passes, parseBoardingPass(line))
+	}
+	sort.Sort(byLocation(passes))
+	row := passes[0].row
+	col := passes[0].col
+	for _, pass := range passes {
+		if pass.row != row || pass.col != col {
+			mypass := boardingPass{loc: "", row: row, col: col}
+			fmt.Println(mypass.CalcSeatID())
+			break
+		}
+		col = (col + 1) % 8
+		if col == 0 {
+			row++
+		}
+	}
+}
+
+type boardingPass struct {
+	loc string
+	row int
+	col int
+}
+
+func (a boardingPass) CalcSeatID() int {
+	return a.row*8 + a.col
+}
+
+type bySeatID []boardingPass
+
+func (l bySeatID) Len() int           { return len(l) }
+func (l bySeatID) Less(i, j int) bool { return l[i].CalcSeatID() < l[j].CalcSeatID() }
+func (l bySeatID) Swap(i, j int)      { l[i], l[j] = l[j], l[i] }
+
+type byLocation []boardingPass
+
+func (l byLocation) Len() int { return len(l) }
+func (l byLocation) Less(i, j int) bool {
+	return l[i].row < l[j].row || (l[i].row == l[j].row && l[i].col < l[j].col)
+}
+func (l byLocation) Swap(i, j int) { l[i], l[j] = l[j], l[i] }
+
+func parseBoardingPass(loc string) boardingPass {
+	row := parseRowLocation(loc[:7])
+	col := parseColumnLocation(loc[7:])
+	return boardingPass{loc: loc, row: row, col: col}
+}
+
+func parseRowLocation(rowstr string) int {
+	if len(rowstr) != 7 {
+		log.Fatalf("Row location (%s) string must be 7 digits", rowstr)
+	}
+	row := 0
+	poweroftwo := 1
+	for i := 6; i >= 0; i-- {
+		if rowstr[i] == 'B' {
+			row += poweroftwo
+		}
+		poweroftwo *= 2
+	}
+	return row
+}
+
+func parseColumnLocation(colstr string) int {
+	if len(colstr) != 3 {
+		log.Fatalf("Column location (%s) string must be 3 digits", colstr)
+	}
+	col := 0
+	poweroftwo := 1
+	for i := 2; i >= 0; i-- {
+		if colstr[i] == 'R' {
+			col += poweroftwo
+		}
+		poweroftwo *= 2
+	}
+	return col
 }
