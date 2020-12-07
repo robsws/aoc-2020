@@ -2,6 +2,7 @@ package main
 
 import (
 	"aoc-2020/files"
+	"aoc-2020/utils"
 	"fmt"
 	"log"
 	"os"
@@ -12,7 +13,7 @@ import (
 
 func main() {
 	filename := os.Args[1]
-	daysixparttwo(filename)
+	daysevenparttwo(filename)
 }
 
 func dayonepartone(filename string) {
@@ -396,4 +397,67 @@ func daysixparttwo(filename string) {
 		}
 	}
 	fmt.Println(total)
+}
+
+func daysevenpartone(filename string) {
+	fileStream := make(chan string)
+	go files.StreamLines(filename, fileStream)
+	containerRe := regexp.MustCompile("^[a-z]+ [a-z]+")
+	containedRe := regexp.MustCompile("([0-9]+) ([a-z]+ [a-z]+)")
+	containedBy := make(map[string][]string)
+	for line := range fileStream {
+		container := containerRe.FindString(line)
+		contained := containedRe.FindAllStringSubmatch(line, -1)
+		for _, submatch := range contained {
+			containedBy[submatch[2]] = append(containedBy[submatch[2]], container)
+		}
+	}
+	goldContainers := getContainers(containedBy, "shiny gold", true)
+	fmt.Println(goldContainers.Len())
+}
+
+func getContainers(containedBy map[string][]string, colour string, top bool) utils.Set {
+	containers := containedBy[colour]
+	colours := utils.MakeSet()
+	for _, container := range containers {
+		colours.Union(getContainers(containedBy, container, false))
+	}
+	if !top {
+		colours.Add(colour)
+	}
+	return colours
+}
+
+func daysevenparttwo(filename string) {
+	fileStream := make(chan string)
+	go files.StreamLines(filename, fileStream)
+	containerRe := regexp.MustCompile("^[a-z]+ [a-z]+")
+	containedRe := regexp.MustCompile("([0-9]+) ([a-z]+ [a-z]+)")
+	containerOf := make(map[string][]container)
+	for line := range fileStream {
+		containerColour := containerRe.FindString(line)
+		containedColours := containedRe.FindAllStringSubmatch(line, -1)
+		for _, submatch := range containedColours {
+			amount, _ := strconv.Atoi(submatch[1])
+			containerOf[containerColour] = append(containerOf[containerColour], container{Colour: submatch[2], Amount: amount})
+		}
+	}
+	goldContains := countContained(containerOf, container{Colour: "shiny gold", Amount: 1}, true)
+	fmt.Println(goldContains)
+}
+
+type container struct {
+	Colour string
+	Amount int
+}
+
+func countContained(containerOf map[string][]container, c container, top bool) int {
+	total := 0
+	for _, innerContainer := range containerOf[c.Colour] {
+		total += c.Amount * countContained(containerOf, innerContainer, false)
+	}
+	if !top {
+		total += c.Amount
+	}
+	return total
 }
