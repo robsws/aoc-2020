@@ -13,7 +13,7 @@ import (
 
 func main() {
 	filename := os.Args[1]
-	daysevenparttwo(filename)
+	dayeightparttwo(filename)
 }
 
 func dayonepartone(filename string) {
@@ -460,4 +460,79 @@ func countContained(containerOf map[string][]container, c container, top bool) i
 		total += c.Amount
 	}
 	return total
+}
+
+func dayeightpartone(filename string) {
+	fileStream := make(chan string)
+	go files.StreamLines(filename, fileStream)
+	instructionRe := regexp.MustCompile("^([a-z]{3}) ((?:\\+|-)[0-9]+)$")
+	program := make([]instruction, 0)
+	for line := range fileStream {
+		submatches := instructionRe.FindStringSubmatch(line)
+		valueI, _ := strconv.Atoi(submatches[2])
+		program = append(program, instruction{Command: submatches[1], Value: valueI})
+	}
+	acc, _ := runProgram(program)
+	fmt.Println(acc)
+}
+
+func runProgram(program []instruction) (int, bool) {
+	visited := make([]int, len(program))
+	pc := 0
+	acc := 0
+	terminated := false
+	for {
+		if pc == len(program) {
+			terminated = true
+			break
+		}
+		i := program[pc]
+		visited[pc]++
+		if visited[pc] == 2 {
+			terminated = false
+			break
+		}
+		switch i.Command {
+		case "acc":
+			acc += i.Value
+		case "jmp":
+			pc += i.Value
+			continue
+		}
+		pc++
+	}
+	return acc, terminated
+}
+
+type instruction struct {
+	Command string
+	Value   int
+}
+
+func dayeightparttwo(filename string) {
+	fileStream := make(chan string)
+	go files.StreamLines(filename, fileStream)
+	instructionRe := regexp.MustCompile("^([a-z]{3}) ((?:\\+|-)[0-9]+)$")
+	program := make([]instruction, 0)
+	for line := range fileStream {
+		submatches := instructionRe.FindStringSubmatch(line)
+		valueI, _ := strconv.Atoi(submatches[2])
+		program = append(program, instruction{Command: submatches[1], Value: valueI})
+	}
+	for i, op := range program {
+		if op.Command == "nop" || op.Command == "jmp" {
+			newprog := make([]instruction, len(program))
+			copy(newprog, program)
+			newop := "jmp"
+			if op.Command == "jmp" {
+				newop = "nop"
+			}
+			newprog[i].Command = newop
+			acc, ok := runProgram(newprog)
+			if ok {
+				fmt.Println(acc)
+				break
+			}
+		}
+	}
 }
