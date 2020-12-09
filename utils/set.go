@@ -4,14 +4,14 @@ type empty struct{}
 
 // Set - implement a mathematical set using a map
 type Set struct {
-	m map[string]interface{}
+	m map[interface{}]interface{}
 	e empty
 }
 
 // MakeSet - create an empty set
 func MakeSet() Set {
 	var e empty
-	s := Set{make(map[string]interface{}), e}
+	s := Set{make(map[interface{}]interface{}), e}
 	return s
 }
 
@@ -21,7 +21,7 @@ func (s *Set) Len() int {
 }
 
 // Add - add item to set
-func (s *Set) Add(item string) {
+func (s *Set) Add(item interface{}) {
 	s.m[item] = s.e
 }
 
@@ -33,7 +33,13 @@ func (s *Set) Union(t Set) {
 	}
 }
 
+// Contains - check if item is in the set
+func (s *Set) Contains(item interface{}) bool {
+	_, ok := s.m[item]
+	return ok
+}
+
 // ToSlice - get elements as slice
-func (s *Set) ToSlice() []string {
+func (s *Set) ToSlice() []interface{} {
 	return Keys(s.m)
 }

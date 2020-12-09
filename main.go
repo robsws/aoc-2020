@@ -13,7 +13,7 @@ import (
 
 func main() {
 	filename := os.Args[1]
-	dayeightparttwo(filename)
+	daynineparttwo(filename, 25)
 }
 
 func dayonepartone(filename string) {
@@ -535,4 +535,71 @@ func dayeightparttwo(filename string) {
 			}
 		}
 	}
+}
+
+func dayninepartone(filename string, preamble int) {
+	fileStream := make(chan int)
+	go files.StreamInts(filename, fileStream)
+	numbers := make([]int, 0)
+	for n := range fileStream {
+		numbers = append(numbers, n)
+	}
+	nonsum, ok := findNonSumNumber(numbers, preamble)
+	if ok {
+		fmt.Println(nonsum)
+	} else {
+		fmt.Println("No non-summing number found.")
+	}
+}
+
+func findNonSumNumber(numbers []int, preamble int) (int, bool) {
+	for i := 0; i < len(numbers)-preamble; i++ {
+		sums := utils.MakeSet()
+		for j := 0; j < preamble; j++ {
+			for k := 0; k < preamble; k++ {
+				if k != j {
+					sums.Add(numbers[i+k] + numbers[i+j])
+				}
+			}
+		}
+		if !sums.Contains(numbers[i+preamble]) {
+			return numbers[i+preamble], true
+		}
+	}
+	return -1, false
+}
+
+func daynineparttwo(filename string, preamble int) {
+	fileStream := make(chan int)
+	go files.StreamInts(filename, fileStream)
+	numbers := make([]int, 0)
+	for n := range fileStream {
+		numbers = append(numbers, n)
+	}
+	nonsum, ok := findNonSumNumber(numbers, preamble)
+	if !ok {
+		log.Fatal("No non-summing number found.")
+	}
+	start, end, ok := findContiguousSumRange(numbers, nonsum)
+	if !ok {
+		log.Fatalf("Non contiguous block found that sums to first nonsum value %d", nonsum)
+	}
+	sumrange := numbers[start : end+1]
+	sort.Ints(sumrange)
+	fmt.Println(sumrange[0] + sumrange[len(sumrange)-1])
+}
+
+func findContiguousSumRange(numbers []int, n int) (int, int, bool) {
+	for i := 0; i < len(numbers)-1; i++ {
+		total := numbers[i]
+		for j := i + 1; j < len(numbers); j++ {
+			total += numbers[j]
+			if total == n {
+				return i, j, true
+			} else if total > n {
+				break
+			}
+		}
+	}
+	return -1, -1, false
 }
