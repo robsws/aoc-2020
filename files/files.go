@@ -7,6 +7,33 @@ import (
 	"strconv"
 )
 
+// GetLines - get lines of a file in a slice
+func GetLines(filename string) []string {
+	buf, err := os.Open(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer func() {
+		if err = buf.Close(); err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	reader := bufio.NewScanner(buf)
+	lines := make([]string, 0)
+	for reader.Scan() {
+		lines = append(lines, reader.Text())
+	}
+
+	err = reader.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return lines
+}
+
 // StreamLines - Read lines of file and write them to out channel
 func StreamLines(filename string, out chan string) {
 	buf, err := os.Open(filename)
