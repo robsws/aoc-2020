@@ -6,13 +6,13 @@ import (
 )
 
 // PartOne - simulate airport seating using adjacent algorithm and calculate convergent occupied seats
-func PartOne(filename string) {
-	fmt.Println(simulateSeatsAndCountOccupied(filename, false))
+func PartOne(filename string) string {
+	return fmt.Sprint(simulateSeatsAndCountOccupied(filename, false))
 }
 
 // PartTwo - simulate airport seating using visible algorithm and calculate convergent occupied seats
-func PartTwo(filename string) {
-	fmt.Println(simulateSeatsAndCountOccupied(filename, true))
+func PartTwo(filename string) string {
+	return fmt.Sprint(simulateSeatsAndCountOccupied(filename, true))
 }
 
 func simulateSeatsAndCountOccupied(filename string, useVisibleAlgorithm bool) int {

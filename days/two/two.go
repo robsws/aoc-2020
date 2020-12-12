@@ -8,7 +8,7 @@ import (
 )
 
 // PartOne - get number of valid passports with simple rules
-func PartOne(filename string) {
+func PartOne(filename string) string {
 	fileStream := make(chan string)
 	go files.StreamLines(filename, fileStream)
 	re := regexp.MustCompile("^([0-9]+)-([0-9]+) ([a-z]): ([a-z]+)$")
@@ -29,11 +29,11 @@ func PartOne(filename string) {
 			valids++
 		}
 	}
-	fmt.Println(valids)
+	return fmt.Sprint(valids)
 }
 
 // PartTwo - get number of valid passports with complex rules
-func PartTwo(filename string) {
+func PartTwo(filename string) string {
 	fileStream := make(chan string)
 	go files.StreamLines(filename, fileStream)
 	re := regexp.MustCompile("^([0-9]+)-([0-9]+) ([a-z]): ([a-z]+)$")
@@ -50,5 +50,5 @@ func PartTwo(filename string) {
 			valids++
 		}
 	}
-	fmt.Println(valids)
+	return fmt.Sprint(valids)
 }

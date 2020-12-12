@@ -8,7 +8,7 @@ import (
 )
 
 // PartOne - get number of 1 and 3 length diffs in joltage
-func PartOne(filename string) {
+func PartOne(filename string) string {
 	fileStream := make(chan int)
 	go files.StreamInts(filename, fileStream)
 	adapters := make([]int, 0)
@@ -22,11 +22,11 @@ func PartOne(filename string) {
 		diffs[adapters[i+1]-adapters[i]]++
 	}
 	diffs[3]++
-	fmt.Println(diffs[1] * diffs[3])
+	return fmt.Sprint(diffs[1] * diffs[3])
 }
 
 // PartTwo - get number of adapter permutations
-func PartTwo(filename string) {
+func PartTwo(filename string) string {
 	fileStream := make(chan int)
 	go files.StreamInts(filename, fileStream)
 	adapters := make([]int, 0)
@@ -53,5 +53,5 @@ func PartTwo(filename string) {
 			inarow = 0
 		}
 	}
-	fmt.Println(permutations)
+	return fmt.Sprint(permutations)
 }

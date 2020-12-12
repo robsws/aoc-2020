@@ -30,7 +30,7 @@ import (
 )
 
 // GetParts - get the functions for part one and two for given day
-func GetParts(day int, test bool) (func(string), func(string), string) {
+func GetParts(day int, test bool) (func(string) string, func(string) string, string) {
 	filename := "input.txt"
 	if test {
 		filename = "input_test.txt"

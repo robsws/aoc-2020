@@ -7,13 +7,13 @@ import (
 )
 
 // PartOne - count valid passports with basic rules
-func PartOne(filename string) {
-	fmt.Println(countValidPassports(filename, validatePassportFields))
+func PartOne(filename string) string {
+	return fmt.Sprint(countValidPassports(filename, validatePassportFields))
 }
 
 // PartTwo - count valid passports with complex rules
-func PartTwo(filename string) {
-	fmt.Println(countValidPassports(filename, validatePassport))
+func PartTwo(filename string) string {
+	return fmt.Sprint(countValidPassports(filename, validatePassport))
 }
 
 func countValidPassports(filename string, checkValid func(map[string]string) bool) int {

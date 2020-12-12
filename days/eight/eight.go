@@ -8,7 +8,7 @@ import (
 )
 
 // PartOne - run program and output accumulator
-func PartOne(filename string) {
+func PartOne(filename string) string {
 	fileStream := make(chan string)
 	go files.StreamLines(filename, fileStream)
 	instructionRe := regexp.MustCompile("^([a-z]{3}) ((?:\\+|-)[0-9]+)$")
@@ -19,11 +19,11 @@ func PartOne(filename string) {
 		program = append(program, instruction{Command: submatches[1], Value: valueI})
 	}
 	acc, _ := runProgram(program)
-	fmt.Println(acc)
+	return fmt.Sprint(acc)
 }
 
 // PartTwo - amend program so that it terminates, and output accumulator
-func PartTwo(filename string) {
+func PartTwo(filename string) string {
 	fileStream := make(chan string)
 	go files.StreamLines(filename, fileStream)
 	instructionRe := regexp.MustCompile("^([a-z]{3}) ((?:\\+|-)[0-9]+)$")
@@ -44,9 +44,9 @@ func PartTwo(filename string) {
 			newprog[i].Command = newop
 			acc, ok := runProgram(newprog)
 			if ok {
-				fmt.Println(acc)
-				break
+				return fmt.Sprint(acc)
 			}
 		}
 	}
+	return "No terminating program found"
 }

@@ -8,7 +8,7 @@ import (
 )
 
 // PartOne - find number of containers that can contain shiny gold ones
-func PartOne(filename string) {
+func PartOne(filename string) string {
 	fileStream := make(chan string)
 	go files.StreamLines(filename, fileStream)
 	containerRe := regexp.MustCompile("^[a-z]+ [a-z]+")
@@ -22,11 +22,11 @@ func PartOne(filename string) {
 		}
 	}
 	goldContainers := getContainers(containedBy, "shiny gold", true)
-	fmt.Println(goldContainers.Len())
+	return fmt.Sprint(goldContainers.Len())
 }
 
 // PartTwo - find number of containers within shiny gold one
-func PartTwo(filename string) {
+func PartTwo(filename string) string {
 	fileStream := make(chan string)
 	go files.StreamLines(filename, fileStream)
 	containerRe := regexp.MustCompile("^[a-z]+ [a-z]+")
@@ -41,5 +41,5 @@ func PartTwo(filename string) {
 		}
 	}
 	goldContains := countContained(containerOf, container{Colour: "shiny gold", Amount: 1}, true)
-	fmt.Println(goldContains)
+	return fmt.Sprint(goldContains)
 }

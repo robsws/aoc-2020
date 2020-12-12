@@ -6,15 +6,15 @@ import (
 )
 
 // PartOne - get number of trees hit
-func PartOne(filename string) {
+func PartOne(filename string) string {
 	resultStream := make(chan int)
 	go countTrees(filename, 3, 1, resultStream)
 	trees := <-resultStream
-	fmt.Println(trees)
+	return fmt.Sprint(trees)
 }
 
 // PartTwo - get number of tree hit for various directions
-func PartTwo(filename string) {
+func PartTwo(filename string) string {
 	resultStream := make(chan int)
 	go countTrees(filename, 1, 1, resultStream)
 	go countTrees(filename, 3, 1, resultStream)
@@ -25,7 +25,7 @@ func PartTwo(filename string) {
 	for i := 0; i < 5; i++ {
 		trees *= <-resultStream
 	}
-	fmt.Println(trees)
+	return fmt.Sprint(trees)
 }
 
 func countTrees(filename string, dx int, dy int, resultStream chan int) {

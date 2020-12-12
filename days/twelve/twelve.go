@@ -8,13 +8,13 @@ import (
 )
 
 // PartOne - get manhattan distance travelled by ferry
-func PartOne(filename string) {
-	fmt.Println(simulateFerry(filename, false))
+func PartOne(filename string) string {
+	return fmt.Sprint(simulateFerry(filename, false))
 }
 
 // PartTwo - get manhattan distance travelled by ferry with waypoint
-func PartTwo(filename string) {
-	fmt.Println(simulateFerry(filename, true))
+func PartTwo(filename string) string {
+	return fmt.Sprint(simulateFerry(filename, true))
 }
 
 func simulateFerry(filename string, usesWaypoint bool) int {

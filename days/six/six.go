@@ -6,7 +6,7 @@ import (
 )
 
 // PartOne - count yes answers
-func PartOne(filename string) {
+func PartOne(filename string) string {
 	fileStream := make(chan string)
 	go files.StreamLines(filename, fileStream)
 	total := 0
@@ -26,11 +26,11 @@ func PartOne(filename string) {
 	for _, n := range group {
 		total += n
 	}
-	fmt.Println(total)
+	return fmt.Sprint(total)
 }
 
 // PartTwo - count answers which everyone in group answered yes
-func PartTwo(filename string) {
+func PartTwo(filename string) string {
 	fileStream := make(chan string)
 	go files.StreamLines(filename, fileStream)
 	total := 0
@@ -57,5 +57,5 @@ func PartTwo(filename string) {
 			total++
 		}
 	}
-	fmt.Println(total)
+	return fmt.Sprint(total)
 }
