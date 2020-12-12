@@ -1,15 +1,32 @@
 package twelve
 
 import (
+	"aoc-2020/files"
 	"fmt"
+	"regexp"
+	"strconv"
 )
 
-// PartOne - not yet implemented
+// PartOne - get manhattan distance travelled by ferry
 func PartOne(filename string) {
-	fmt.Println("Not yet implemented")
+	fmt.Println(simulateFerry(filename, false))
 }
 
-// PartTwo - not yet implemented
+// PartTwo - get manhattan distance travelled by ferry with waypoint
 func PartTwo(filename string) {
-	fmt.Println("Not yet implemented")
+	fmt.Println(simulateFerry(filename, true))
+}
+
+func simulateFerry(filename string, usesWaypoint bool) int {
+	fileStream := make(chan string)
+	go files.StreamLines(filename, fileStream)
+	ferry := makeFerry(usesWaypoint)
+	re := regexp.MustCompile("([A-Z])([0-9]+)")
+	for line := range fileStream {
+		parts := re.FindStringSubmatch(line)
+		command := rune(parts[1][0])
+		value, _ := strconv.Atoi(parts[2])
+		ferry.TakeCommand(command, value)
+	}
+	return ferry.ManhattanDistance()
 }
