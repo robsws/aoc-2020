@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func validatePassportFields(fields map[string]bool) bool {
+func validatePassportFields(fields map[string]string) bool {
 	requiredFields := [7]string{"byr", "ecl", "eyr", "hcl", "hgt", "iyr", "pid"}
 	valid := true
 	for _, key := range requiredFields {

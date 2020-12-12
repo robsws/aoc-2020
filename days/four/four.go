@@ -8,32 +8,15 @@ import (
 
 // PartOne - count valid passports with basic rules
 func PartOne(filename string) {
-	fileStream := make(chan string)
-	go files.StreamLines(filename, fileStream)
-	valids := 0
-	re := regexp.MustCompile("([a-z]{3}):[^ ]+")
-	currentFields := make(map[string]bool)
-	for line := range fileStream {
-		if line == "" {
-			if validatePassportFields(currentFields) {
-				valids++
-			}
-			currentFields = make(map[string]bool)
-		} else {
-			fields := re.FindAllStringSubmatch(line, -1)
-			for _, field := range fields {
-				currentFields[field[1]] = true
-			}
-		}
-	}
-	if validatePassportFields(currentFields) {
-		valids++
-	}
-	fmt.Println(valids)
+	fmt.Println(countValidPassports(filename, validatePassportFields))
 }
 
 // PartTwo - count valid passports with complex rules
 func PartTwo(filename string) {
+	fmt.Println(countValidPassports(filename, validatePassport))
+}
+
+func countValidPassports(filename string, checkValid func(map[string]string) bool) int {
 	fileStream := make(chan string)
 	go files.StreamLines(filename, fileStream)
 	valids := 0
@@ -41,7 +24,7 @@ func PartTwo(filename string) {
 	currentFields := make(map[string]string)
 	for line := range fileStream {
 		if line == "" {
-			if validatePassport(currentFields) {
+			if checkValid(currentFields) {
 				valids++
 			}
 			currentFields = make(map[string]string)
@@ -52,8 +35,8 @@ func PartTwo(filename string) {
 			}
 		}
 	}
-	if validatePassport(currentFields) {
+	if checkValid(currentFields) {
 		valids++
 	}
-	fmt.Println(valids)
+	return valids
 }
