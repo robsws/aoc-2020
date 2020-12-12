@@ -6,12 +6,14 @@ import (
 	"sort"
 )
 
-const preamble = 25
-
 // PartOne - find number that isn't sum of previous
-func PartOne(filename string) string {
+func PartOne(filename string, test bool) string {
 	fileStream := make(chan int)
 	go files.StreamInts(filename, fileStream)
+	preamble := 25
+	if test {
+		preamble = 5
+	}
 	numbers := make([]int, 0)
 	for n := range fileStream {
 		numbers = append(numbers, n)
@@ -24,9 +26,13 @@ func PartOne(filename string) string {
 }
 
 // PartTwo - find encryption weakness of XMAS
-func PartTwo(filename string) string {
+func PartTwo(filename string, test bool) string {
 	fileStream := make(chan int)
 	go files.StreamInts(filename, fileStream)
+	preamble := 25
+	if test {
+		preamble = 5
+	}
 	numbers := make([]int, 0)
 	for n := range fileStream {
 		numbers = append(numbers, n)

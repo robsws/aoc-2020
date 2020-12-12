@@ -53,7 +53,7 @@ func GetParts(day int, test bool) (func(string) string, func(string) string, str
 	case 8:
 		return eight.PartOne, eight.PartTwo, filepath.Join("days/eight/", filename)
 	case 9:
-		return nine.PartOne, nine.PartTwo, filepath.Join("days/nine/", filename)
+		return func(f string) string { return nine.PartOne(f, test) }, func(f string) string { return nine.PartTwo(f, test) }, filepath.Join("days/nine/", filename)
 	case 10:
 		return ten.PartOne, ten.PartTwo, filepath.Join("days/ten/", filename)
 	case 11:
