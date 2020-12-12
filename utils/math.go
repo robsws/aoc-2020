@@ -17,6 +17,14 @@ func AbsInt(i int) int {
 	return i
 }
 
+// MaxInt - max of two integers
+func MaxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
 // Vec2 - 2d vector
 type Vec2 struct {
 	X int
