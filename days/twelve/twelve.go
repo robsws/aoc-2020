@@ -2,9 +2,9 @@ package twelve
 
 import (
 	"aoc-2020/files"
+	"aoc-2020/utils"
 	"fmt"
 	"regexp"
-	"strconv"
 )
 
 // PartOne - get manhattan distance travelled by ferry
@@ -25,7 +25,7 @@ func simulateFerry(filename string, usesWaypoint bool) int {
 	for line := range fileStream {
 		parts := re.FindStringSubmatch(line)
 		command := rune(parts[1][0])
-		value, _ := strconv.Atoi(parts[2])
+		value := utils.MustAtoi(parts[2])
 		ferry.TakeCommand(command, value)
 	}
 	return ferry.ManhattanDistance()

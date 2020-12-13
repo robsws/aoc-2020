@@ -2,9 +2,9 @@ package two
 
 import (
 	"aoc-2020/files"
+	"aoc-2020/utils"
 	"fmt"
 	"regexp"
-	"strconv"
 )
 
 // PartOne - get number of valid passports with simple rules
@@ -15,8 +15,8 @@ func PartOne(filename string) string {
 	valids := 0
 	for line := range fileStream {
 		submatches := re.FindStringSubmatch(line)
-		min, _ := strconv.Atoi(submatches[1])
-		max, _ := strconv.Atoi(submatches[2])
+		min := utils.MustAtoi(submatches[1])
+		max := utils.MustAtoi(submatches[2])
 		rulechar := []rune(submatches[3])[0]
 		password := submatches[4]
 		charcount := 0
@@ -40,8 +40,8 @@ func PartTwo(filename string) string {
 	valids := 0
 	for line := range fileStream {
 		submatches := re.FindStringSubmatch(line)
-		loc1, _ := strconv.Atoi(submatches[1])
-		loc2, _ := strconv.Atoi(submatches[2])
+		loc1 := utils.MustAtoi(submatches[1])
+		loc2 := utils.MustAtoi(submatches[2])
 		loc1--
 		loc2--
 		rulechar := []rune(submatches[3])[0]

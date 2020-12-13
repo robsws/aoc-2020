@@ -4,6 +4,8 @@ import (
 	"math"
 )
 
+const MAXINT = int(^uint(0) >> 1)
+
 // PowInt - calculate power with integers
 func PowInt(a, b int) int {
 	return int(math.Pow(float64(a), float64(b)))
@@ -23,6 +25,32 @@ func MaxInt(a, b int) int {
 		return a
 	}
 	return b
+}
+
+// MinIntInList - get minimum int from a list and it's index
+func MinIntInList(list []int) (int, int) {
+	min := MAXINT
+	minI := -1
+	for i, n := range list {
+		if n < min {
+			min = n
+			minI = i
+		}
+	}
+	return minI, min
+}
+
+// MaxIntInList - get maximum int from a list and it's index
+func MaxIntInList(list []int) (int, int) {
+	max := -MAXINT
+	maxI := -1
+	for i, n := range list {
+		if n > max {
+			max = n
+			maxI = i
+		}
+	}
+	return maxI, max
 }
 
 // Vec2 - 2d vector

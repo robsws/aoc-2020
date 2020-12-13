@@ -2,9 +2,9 @@ package seven
 
 import (
 	"aoc-2020/files"
+	"aoc-2020/utils"
 	"fmt"
 	"regexp"
-	"strconv"
 )
 
 // PartOne - find number of containers that can contain shiny gold ones
@@ -36,7 +36,7 @@ func PartTwo(filename string) string {
 		containerColour := containerRe.FindString(line)
 		containedColours := containedRe.FindAllStringSubmatch(line, -1)
 		for _, submatch := range containedColours {
-			amount, _ := strconv.Atoi(submatch[1])
+			amount := utils.MustAtoi(submatch[1])
 			containerOf[containerColour] = append(containerOf[containerColour], container{Colour: submatch[2], Amount: amount})
 		}
 	}

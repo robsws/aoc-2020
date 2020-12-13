@@ -1,8 +1,8 @@
 package four
 
 import (
+	"aoc-2020/utils"
 	"regexp"
-	"strconv"
 )
 
 func validatePassportFields(fields map[string]string) bool {
@@ -44,7 +44,7 @@ func validatePassport(fields map[string]string) bool {
 }
 
 func validateYear(year string, min, max int) bool {
-	yearI, _ := strconv.Atoi(year)
+	yearI := utils.MustAtoi(year)
 	return yearI <= max && yearI >= min
 }
 
@@ -54,7 +54,7 @@ func validateHeight(h string) bool {
 		return false
 	}
 	submatches := re.FindStringSubmatch(h)
-	height, _ := strconv.Atoi(submatches[1])
+	height := utils.MustAtoi(submatches[1])
 	if submatches[2] == "cm" {
 		return height >= 150 && height <= 193
 	}

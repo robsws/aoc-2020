@@ -1,10 +1,10 @@
 package files
 
 import (
+	"aoc-2020/utils"
 	"bufio"
 	"log"
 	"os"
-	"strconv"
 )
 
 // GetLines - get lines of a file in a slice
@@ -65,10 +65,7 @@ func StreamInts(filename string, out chan int) {
 	defer close(out)
 	go StreamLines(filename, fileStream)
 	for line := range fileStream {
-		i, err := strconv.Atoi(line)
-		if err != nil {
-			log.Fatal(err)
-		}
+		i := utils.MustAtoi(line)
 		out <- i
 	}
 }

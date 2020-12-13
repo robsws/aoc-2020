@@ -2,9 +2,9 @@ package eight
 
 import (
 	"aoc-2020/files"
+	"aoc-2020/utils"
 	"fmt"
 	"regexp"
-	"strconv"
 )
 
 // PartOne - run program and output accumulator
@@ -15,7 +15,7 @@ func PartOne(filename string) string {
 	program := make([]instruction, 0)
 	for line := range fileStream {
 		submatches := instructionRe.FindStringSubmatch(line)
-		valueI, _ := strconv.Atoi(submatches[2])
+		valueI := utils.MustAtoi(submatches[2])
 		program = append(program, instruction{Command: submatches[1], Value: valueI})
 	}
 	acc, _ := runProgram(program)
@@ -30,7 +30,7 @@ func PartTwo(filename string) string {
 	program := make([]instruction, 0)
 	for line := range fileStream {
 		submatches := instructionRe.FindStringSubmatch(line)
-		valueI, _ := strconv.Atoi(submatches[2])
+		valueI := utils.MustAtoi(submatches[2])
 		program = append(program, instruction{Command: submatches[1], Value: valueI})
 	}
 	for i, op := range program {
