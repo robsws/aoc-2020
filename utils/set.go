@@ -16,17 +16,17 @@ func MakeSet() Set {
 }
 
 // Len - length of a set
-func (s *Set) Len() int {
+func (s Set) Len() int {
 	return len(Keys(s.m))
 }
 
 // Add - add item to set
-func (s *Set) Add(item interface{}) {
+func (s Set) Add(item interface{}) {
 	s.m[item] = s.e
 }
 
 // Union - add another set to this set
-func (s *Set) Union(t Set) {
+func (s Set) Union(t Set) {
 	list := t.ToSlice()
 	for _, item := range list {
 		s.Add(item)
@@ -34,12 +34,12 @@ func (s *Set) Union(t Set) {
 }
 
 // Contains - check if item is in the set
-func (s *Set) Contains(item interface{}) bool {
+func (s Set) Contains(item interface{}) bool {
 	_, ok := s.m[item]
 	return ok
 }
 
 // ToSlice - get elements as slice
-func (s *Set) ToSlice() []interface{} {
+func (s Set) ToSlice() []interface{} {
 	return Keys(s.m)
 }
