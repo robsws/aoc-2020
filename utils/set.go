@@ -15,6 +15,15 @@ func MakeSet() Set {
 	return s
 }
 
+// CopySet - copy a set
+func CopySet(s Set) Set {
+	ns := Set{make(map[interface{}]interface{}), s.e}
+	for k := range s.m {
+		ns.m[k] = ns.e
+	}
+	return ns
+}
+
 // Len - length of a set
 func (s Set) Len() int {
 	return len(Keys(s.m))
