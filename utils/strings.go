@@ -22,3 +22,12 @@ func MustAtoiAll(list []string) []int {
 	}
 	return intList
 }
+
+// StringToInterfaceSlice - convert string slice to interface{} slice
+func StringToInterfaceSlice(ss []string) []interface{} {
+	is := make([]interface{}, len(ss))
+	for i, s := range ss {
+		is[i] = s
+	}
+	return is
+}

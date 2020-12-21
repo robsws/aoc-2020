@@ -15,6 +15,15 @@ func MakeSet() Set {
 	return s
 }
 
+// MakeSetFromSlice - create an empty set
+func MakeSetFromSlice(slice []interface{}) Set {
+	s := MakeSet()
+	for _, elem := range slice {
+		s.Add(elem)
+	}
+	return s
+}
+
 // CopySet - copy a set
 func CopySet(s Set) Set {
 	ns := Set{make(map[interface{}]interface{}), s.e}
@@ -32,6 +41,11 @@ func (s Set) Len() int {
 // Add - add item to set
 func (s Set) Add(item interface{}) {
 	s.m[item] = s.e
+}
+
+// Remove - remove item from set
+func (s Set) Remove(item interface{}) {
+	delete(s.m, item)
 }
 
 // Union - add another set to this set
