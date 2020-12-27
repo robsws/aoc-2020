@@ -1,7 +1,7 @@
 package files
 
 import (
-	"aoc-2020/utils"
+	"aoc-go/utils"
 	"bufio"
 	"log"
 	"os"
