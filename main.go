@@ -31,7 +31,7 @@ func main() {
 	// Run one day from a particular year
 	daystr := os.Args[2]
 	test := false
-	if len(os.Args) > 2 {
+	if len(os.Args) > 3 {
 		test = true
 	}
 	day, err := strconv.Atoi(daystr)
