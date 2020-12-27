@@ -1,10 +1,12 @@
 package seven
 
-import "aoc-go/utils"
+import (
+	"aoc-go/set"
+)
 
-func getContainers(containedBy map[string][]string, colour string, top bool) utils.Set {
+func getContainers(containedBy map[string][]string, colour string, top bool) set.StringSet {
 	containers := containedBy[colour]
-	colours := utils.MakeSet()
+	colours := set.MakeStringSet()
 	for _, container := range containers {
 		colours.Union(getContainers(containedBy, container, false))
 	}

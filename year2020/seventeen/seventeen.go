@@ -2,6 +2,7 @@ package seventeen
 
 import (
 	"aoc-go/files"
+	"aoc-go/set"
 	"aoc-go/utils"
 	"fmt"
 	"strings"
@@ -25,9 +26,9 @@ func PartTwo(filename string) string {
 	return fmt.Sprint(activePoints.Len())
 }
 
-func parseInputGrid(filename string) utils.Set {
+func parseInputGrid(filename string) set.StringSet {
 	lines := files.GetLines(filename)
-	activePoints := utils.MakeSet()
+	activePoints := set.MakeStringSet()
 	for y, line := range lines {
 		places := strings.Split(line, "")
 		for z, c := range places {
@@ -39,9 +40,9 @@ func parseInputGrid(filename string) utils.Set {
 	return activePoints
 }
 
-func parseInputGrid4D(filename string) utils.Set {
+func parseInputGrid4D(filename string) set.StringSet {
 	lines := files.GetLines(filename)
-	activePoints := utils.MakeSet()
+	activePoints := set.MakeStringSet()
 	for y, line := range lines {
 		places := strings.Split(line, "")
 		for z, c := range places {
@@ -53,10 +54,10 @@ func parseInputGrid4D(filename string) utils.Set {
 	return activePoints
 }
 
-func simulateGrid(activePoints utils.Set) utils.Set {
-	newActivePoints := utils.MakeSet()
+func simulateGrid(activePoints set.StringSet) set.StringSet {
+	newActivePoints := set.MakeStringSet()
 	for _, point := range activePoints.ToSlice() {
-		x, y, z := parseCoordString(point.(string))
+		x, y, z := parseCoordString(point)
 		newPoints, active := updatePoint(x, y, z, activePoints, true)
 		newActivePoints.Union(newPoints)
 		if active {
@@ -66,10 +67,10 @@ func simulateGrid(activePoints utils.Set) utils.Set {
 	return newActivePoints
 }
 
-func simulateGrid4D(activePoints utils.Set) utils.Set {
-	newActivePoints := utils.MakeSet()
+func simulateGrid4D(activePoints set.StringSet) set.StringSet {
+	newActivePoints := set.MakeStringSet()
 	for _, point := range activePoints.ToSlice() {
-		w, x, y, z := parseCoordString4D(point.(string))
+		w, x, y, z := parseCoordString4D(point)
 		newPoints, active := updatePoint4D(w, x, y, z, activePoints, true)
 		newActivePoints.Union(newPoints)
 		if active {
@@ -79,9 +80,9 @@ func simulateGrid4D(activePoints utils.Set) utils.Set {
 	return newActivePoints
 }
 
-func updatePoint(x, y, z int, activePoints utils.Set, recurse bool) (utils.Set, bool) {
+func updatePoint(x, y, z int, activePoints set.StringSet, recurse bool) (set.StringSet, bool) {
 	activeSurrounding := 0
-	newPoints := utils.MakeSet()
+	newPoints := set.MakeStringSet()
 	for x1 := x - 1; x1 <= x+1; x1++ {
 		for y1 := y - 1; y1 <= y+1; y1++ {
 			for z1 := z - 1; z1 <= z+1; z1++ {
@@ -109,9 +110,9 @@ func updatePoint(x, y, z int, activePoints utils.Set, recurse bool) (utils.Set, 
 	return newPoints, iAmActive
 }
 
-func updatePoint4D(w, x, y, z int, activePoints utils.Set, recurse bool) (utils.Set, bool) {
+func updatePoint4D(w, x, y, z int, activePoints set.StringSet, recurse bool) (set.StringSet, bool) {
 	activeSurrounding := 0
-	newPoints := utils.MakeSet()
+	newPoints := set.MakeStringSet()
 	for w1 := w - 1; w1 <= w+1; w1++ {
 		for x1 := x - 1; x1 <= x+1; x1++ {
 			for y1 := y - 1; y1 <= y+1; y1++ {
@@ -159,7 +160,7 @@ func parseCoordString4D(coord string) (int, int, int, int) {
 	return utils.MustAtoi(parts[0]), utils.MustAtoi(parts[1]), utils.MustAtoi(parts[2]), utils.MustAtoi(parts[3])
 }
 
-func printActivePoints(activePoints utils.Set) {
+func printActivePoints(activePoints set.StringSet) {
 	for _, point := range activePoints.ToSlice() {
 		fmt.Println(point)
 	}

@@ -2,6 +2,7 @@ package sixteen
 
 import (
 	"aoc-go/files"
+	"aoc-go/set"
 	"aoc-go/utils"
 	"fmt"
 	"regexp"
@@ -38,9 +39,9 @@ func PartTwo(filename string) string {
 	return fmt.Sprint(answer)
 }
 
-func readRules(fileStream chan string) map[string]utils.Set {
+func readRules(fileStream chan string) map[string]set.IntSet {
 	ruleRe := regexp.MustCompile("([a-z ]+): ([0-9]+)-([0-9]+) or ([0-9]+)-([0-9]+)")
-	rules := make(map[string]utils.Set)
+	rules := make(map[string]set.IntSet)
 	for line := range fileStream {
 		if line == "" {
 			break
@@ -51,7 +52,7 @@ func readRules(fileStream chan string) map[string]utils.Set {
 		max1 := utils.MustAtoi(submatches[3])
 		min2 := utils.MustAtoi(submatches[4])
 		max2 := utils.MustAtoi(submatches[5])
-		rules[rule] = utils.MakeSet()
+		rules[rule] = set.MakeIntSet()
 		for i := min1; i <= max1; i++ {
 			rules[rule].Add(i)
 		}
@@ -88,7 +89,7 @@ func parseTicket(line string) []int {
 	return nums
 }
 
-func determineErrorRate(tickets [][]int, rules map[string]utils.Set) int {
+func determineErrorRate(tickets [][]int, rules map[string]set.IntSet) int {
 	errorRate := 0
 	for _, ticket := range tickets {
 		for _, n := range ticket {
@@ -107,10 +108,10 @@ func determineErrorRate(tickets [][]int, rules map[string]utils.Set) int {
 	return errorRate
 }
 
-func determineFieldPositions(tickets [][]int, rules map[string]utils.Set) map[string]int {
-	invalidPositions := make(map[string]utils.Set)
+func determineFieldPositions(tickets [][]int, rules map[string]set.IntSet) map[string]int {
+	invalidPositions := make(map[string]set.IntSet)
 	for field := range rules {
-		invalidPositions[field] = utils.MakeSet()
+		invalidPositions[field] = set.MakeIntSet()
 	}
 	// Find invalid positions for each field based on nearby tickets
 	for _, ticket := range tickets {
@@ -142,9 +143,9 @@ func determineFieldPositions(tickets [][]int, rules map[string]utils.Set) map[st
 		}
 	}
 	// Invert to get valid positions
-	validPositions := make(map[string]utils.Set)
+	validPositions := make(map[string]set.IntSet)
 	for field, invalidPos := range invalidPositions {
-		validPositions[field] = utils.MakeSet()
+		validPositions[field] = set.MakeIntSet()
 		for i := 0; i < len(rules); i++ {
 			if !invalidPos.Contains(i) {
 				validPositions[field].Add(i)
@@ -158,14 +159,14 @@ func determineFieldPositions(tickets [][]int, rules map[string]utils.Set) map[st
 		pairs = append(pairs, pair{k, v.Len()})
 	}
 	sort.Sort(pairs)
-	permutation, ok := findValidPermutation(pairs, validPositions, make([]string, 0), utils.MakeSet())
+	permutation, ok := findValidPermutation(pairs, validPositions, make([]string, 0), set.MakeIntSet())
 	if !ok {
 		return nil
 	}
 	return permutation
 }
 
-func findValidPermutation(pairs pairList, validPositions map[string]utils.Set, fixedFields []string, fixedPositions utils.Set) (map[string]int, bool) {
+func findValidPermutation(pairs pairList, validPositions map[string]set.IntSet, fixedFields []string, fixedPositions set.IntSet) (map[string]int, bool) {
 	if len(fixedFields) == len(validPositions) {
 		return make(map[string]int), true
 	}
@@ -179,7 +180,7 @@ func findValidPermutation(pairs pairList, validPositions map[string]utils.Set, f
 					for i, f := range fixedFields {
 						newFixedFields[i] = f
 					}
-					newFixedPositions := utils.MakeSet()
+					newFixedPositions := set.MakeIntSet()
 					for _, p := range fixedPositions.ToSlice() {
 						newFixedPositions.Add(p)
 					}
@@ -187,7 +188,7 @@ func findValidPermutation(pairs pairList, validPositions map[string]utils.Set, f
 					newFixedPositions.Add(position)
 					newPermutation, ok := findValidPermutation(pairs, validPositions, newFixedFields, newFixedPositions)
 					if ok {
-						newPermutation[field] = position.(int)
+						newPermutation[field] = position
 						return newPermutation, true
 					}
 				}

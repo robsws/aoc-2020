@@ -2,7 +2,7 @@ package twentyfour
 
 import (
 	"aoc-go/files"
-	"aoc-go/utils"
+	"aoc-go/set"
 	"fmt"
 	"regexp"
 )
@@ -51,10 +51,10 @@ func parseDirections(line string) [3]int {
 	return coord
 }
 
-func parseTiles(filename string) utils.Set {
+func parseTiles(filename string) set.CoordSet {
 	fileStream := make(chan string)
 	go files.StreamLines(filename, fileStream)
-	coords := utils.MakeSet()
+	coords := set.MakeCoordSet()
 	for line := range fileStream {
 		coord := parseDirections(line)
 		if coords.Contains(coord) {
@@ -66,15 +66,15 @@ func parseTiles(filename string) utils.Set {
 	return coords
 }
 
-func doRound(coords utils.Set) utils.Set {
-	newCoords := utils.MakeSet()
+func doRound(coords set.CoordSet) set.CoordSet {
+	newCoords := set.MakeCoordSet()
 	for _, coord := range coords.ToSlice() {
-		checkAndUpdateSurrounding(coord.([3]int), coords, &newCoords, true)
+		checkAndUpdateSurrounding(coord, coords, &newCoords, true)
 	}
 	return newCoords
 }
 
-func checkAndUpdateSurrounding(coord [3]int, coords utils.Set, newCoords *utils.Set, recurse bool) {
+func checkAndUpdateSurrounding(coord [3]int, coords set.CoordSet, newCoords *set.CoordSet, recurse bool) {
 	blackTiles := 0
 	offsets := [6][3]int{
 		{0, 1, -1},

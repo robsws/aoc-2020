@@ -2,6 +2,7 @@ package twenty
 
 import (
 	"aoc-go/files"
+	"aoc-go/set"
 	"aoc-go/utils"
 	"fmt"
 	"math"
@@ -71,7 +72,7 @@ func assembleTiles(tiles []tile) [][]bool {
 	/* Find and orient tiles, starting by fitting the first tile
 	   in each row underneath the one above, then fitting the rest
 	   of the row to the right, for every row. */
-	fittedTiles := utils.MakeSet()
+	fittedTiles := set.MakeIntSet()
 	fittedTiles.Add(arrangement[0][0].ID)
 	for y := 0; y < width; y++ {
 		for x := 0; x < width; x++ {
@@ -362,7 +363,7 @@ func flipRow(b [10]bool) [10]bool {
 
 func findCornerTiles(tiles []tile) []tile {
 	borderCounts := countBorders(tiles)
-	imageEdgeBorders := utils.MakeSet()
+	imageEdgeBorders := set.MakeBorderSet()
 	for border, n := range borderCounts {
 		if n == 1 {
 			imageEdgeBorders.Add(border)

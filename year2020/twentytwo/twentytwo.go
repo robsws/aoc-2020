@@ -2,6 +2,7 @@ package twentytwo
 
 import (
 	"aoc-go/files"
+	"aoc-go/set"
 	"aoc-go/utils"
 	"fmt"
 	"strconv"
@@ -63,7 +64,7 @@ func parseDecks(filename string) (deck, deck) {
 func playGame(p1 *deck, p2 *deck, battle func(p1 *deck, p2 *deck) (bool, bool), finishOnRepeatedState bool) (p1Winner bool) {
 	finished := false
 	p1Winner = false
-	previousGameStates := utils.MakeSet()
+	previousGameStates := set.MakeStringSet()
 	for !finished {
 		gameState := serializeGameState(*p1, *p2)
 		if finishOnRepeatedState && previousGameStates.Contains(gameState) {

@@ -1,10 +1,10 @@
 package nine
 
-import "aoc-go/utils"
+import "aoc-go/set"
 
 func findNonSumNumber(numbers []int, preamble int) (int, bool) {
 	for i := 0; i < len(numbers)-preamble; i++ {
-		sums := utils.MakeSet()
+		sums := set.MakeIntSet()
 		for j := 0; j < preamble; j++ {
 			for k := 0; k < preamble; k++ {
 				if k != j {

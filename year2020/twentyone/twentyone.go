@@ -2,7 +2,7 @@ package twentyone
 
 import (
 	"aoc-go/files"
-	"aoc-go/utils"
+	"aoc-go/set"
 	"fmt"
 	"regexp"
 	"sort"
@@ -25,20 +25,20 @@ func analyseRecipes(filename string) (int, string) {
 	fileStream := make(chan string)
 	go files.StreamLines(filename, fileStream)
 	re := regexp.MustCompile("^([a-z ]+) \\(contains ([a-z,\\s]+)\\)$")
-	ingCandidateAllergens := make(map[string]utils.Set)
+	ingCandidateAllergens := make(map[string]set.StringSet)
 	recipes := make([]recipe, 0)
 	// Store all possible ingredients and all possible candidate allergens
 	for line := range fileStream {
 		submatches := re.FindStringSubmatch(line)
 		ingredients := strings.Split(submatches[1], " ")
-		ingredientsSet := utils.MakeSetFromSlice(utils.StringToInterfaceSlice(ingredients))
+		ingredientsSet := set.MakeStringSetFromSlice(ingredients)
 		allergens := strings.Split(submatches[2], ", ")
-		allergensSet := utils.MakeSetFromSlice(utils.StringToInterfaceSlice(allergens))
+		allergensSet := set.MakeStringSetFromSlice(allergens)
 		recipes = append(recipes, recipe{ingredientsSet, allergensSet})
 		for _, i := range ingredients {
 			_, ok := ingCandidateAllergens[i]
 			if !ok {
-				ingCandidateAllergens[i] = utils.MakeSet()
+				ingCandidateAllergens[i] = set.MakeStringSet()
 			}
 			ingCandidateAllergens[i].Union(allergensSet)
 		}
@@ -55,7 +55,7 @@ func analyseRecipes(filename string) (int, string) {
 	}
 	// Loop over ingredients list and deduce ingredient to allergen mapping
 	allergenIngredient := make(map[string]string)
-	nonAllergicIngredients := utils.MakeSet()
+	nonAllergicIngredients := set.MakeStringSet()
 	for len(allergenIngredient)+nonAllergicIngredients.Len() < len(ingCandidateAllergens) {
 		for ingredient := range ingCandidateAllergens {
 			if ingCandidateAllergens[ingredient].Len() == 0 {
@@ -63,7 +63,7 @@ func analyseRecipes(filename string) (int, string) {
 				continue
 			}
 			if ingCandidateAllergens[ingredient].Len() == 1 {
-				allergen := ingCandidateAllergens[ingredient].ToSlice()[0].(string)
+				allergen := ingCandidateAllergens[ingredient].ToSlice()[0]
 				allergenIngredient[allergen] = ingredient
 				for ingredient2 := range ingCandidateAllergens {
 					if ingredient != ingredient2 {
@@ -97,6 +97,6 @@ func analyseRecipes(filename string) (int, string) {
 }
 
 type recipe struct {
-	ingredients utils.Set
-	allergens   utils.Set
+	ingredients set.StringSet
+	allergens   set.StringSet
 }
