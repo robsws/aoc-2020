@@ -2,14 +2,15 @@ package twentythree
 
 import (
 	"aoc-go/files"
+	"aoc-go/linkedlist"
 	"aoc-go/utils"
 	"strconv"
 	"strings"
 )
 
 type cupCircleLL struct {
-	currentNode  *utils.LinkedListNode
-	nodePointers map[int]*utils.LinkedListNode
+	currentNode  *linkedlist.Node
+	nodePointers map[int]*linkedlist.Node
 }
 
 func parseCups(filename string, fillto int) cupCircleLL {
@@ -21,13 +22,13 @@ func parseCups(filename string, fillto int) cupCircleLL {
 	for i, cup := range cupsStr {
 		cupsInt[i] = utils.MustAtoi(cup)
 	}
-	nodePointers := make(map[int]*utils.LinkedListNode)
-	currentNode := utils.LinkedListNode{Value: cupsInt[0], Next: nil}
+	nodePointers := make(map[int]*linkedlist.Node)
+	currentNode := linkedlist.Node{Value: cupsInt[0], Next: nil}
 	firstNodePtr := &currentNode
 	nodePointers[cupsInt[0]] = &currentNode
 	nodePtr := &currentNode
 	for i := 1; i < len(cupsInt); i++ {
-		nextNode := utils.LinkedListNode{Value: cupsInt[i], Next: nil}
+		nextNode := linkedlist.Node{Value: cupsInt[i], Next: nil}
 		nodePtr.Next = &nextNode
 		nodePointers[cupsInt[i]] = &nextNode
 		nodePtr = &nextNode
@@ -35,7 +36,7 @@ func parseCups(filename string, fillto int) cupCircleLL {
 	// If fillto is set, fill up the circle with sequential numbers
 	if fillto >= len(cupsInt) {
 		for i := len(cupsInt) + 1; i <= fillto; i++ {
-			nextNode := utils.LinkedListNode{Value: i, Next: nil}
+			nextNode := linkedlist.Node{Value: i, Next: nil}
 			nodePtr.Next = &nextNode
 			nodePointers[i] = &nextNode
 			nodePtr = &nextNode
