@@ -1,6 +1,7 @@
 package main
 
 import (
+	"aoc-go/year2019"
 	"aoc-go/year2020"
 	"fmt"
 	"log"
@@ -9,14 +10,26 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 2 {
+	// Figure out which year we're running
+	getParts := year2020.GetParts
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "2020":
+			getParts = year2020.GetParts
+		case "2019":
+			getParts = year2019.GetParts
+		}
+	}
+	if len(os.Args) < 3 {
+		// Run all puzzles for a particular year
 		for i := 1; i <= 25; i++ {
-			partone, parttwo, filename := year2020.GetParts(i, false)
+			partone, parttwo, filename := getParts(i, false)
 			fmt.Printf("* Day %d: 1: %s, 2: %s \n", i, partone(filename), parttwo(filename))
 		}
 		return
 	}
-	daystr := os.Args[1]
+	// Run one day from a particular year
+	daystr := os.Args[2]
 	test := false
 	if len(os.Args) > 2 {
 		test = true
@@ -25,7 +38,7 @@ func main() {
 	if err != nil || day <= 0 || day > 25 {
 		log.Fatal("Day number must be between 1 and 25 inclusive and... must actually be a number.")
 	}
-	partone, parttwo, filename := year2020.GetParts(day, test)
+	partone, parttwo, filename := getParts(day, test)
 	fmt.Println("Part one:", partone(filename))
 	fmt.Println("Part two:", parttwo(filename))
 }
