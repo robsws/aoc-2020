@@ -6,13 +6,13 @@ import (
 )
 
 func Test_PartOne(t *testing.T) {
-	if PartOne("input.txt") != fmt.Sprint(222) {
+	if PartOne("input.txt") != fmt.Sprint(925) {
 		t.Fail()
 	}
 }
 
 func Test_PartTwo(t *testing.T) {
-	if PartTwo("input.txt") != fmt.Sprint(140) {
+	if PartTwo("input.txt") != fmt.Sprint(607) {
 		t.Fail()
 	}
 }
