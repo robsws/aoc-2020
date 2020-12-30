@@ -15,32 +15,38 @@ const opJumpIfTrue = 5
 const opJumpIfFalse = 6
 const opLessThan = 7
 const opEquals = 8
+const opAdjustRelativeBase = 9
 const opTerminate = 99
 
 var paramCount = map[int]int{
-	opAdd:         3,
-	opMultiply:    3,
-	opInput:       1,
-	opOutput:      1,
-	opJumpIfTrue:  2,
-	opJumpIfFalse: 2,
-	opLessThan:    3,
-	opEquals:      3,
-	opTerminate:   0,
+	opAdd:                3,
+	opMultiply:           3,
+	opInput:              1,
+	opOutput:             1,
+	opJumpIfTrue:         2,
+	opJumpIfFalse:        2,
+	opLessThan:           3,
+	opEquals:             3,
+	opAdjustRelativeBase: 1,
+	opTerminate:          0,
 }
 
 const positionMode = 0
 const immediateMode = 1
+const relativeMode = 2
+
+const initialMemoryCapacity = 10000
 
 // Program - encapsulates an intcode program
 type Program struct {
-	memory     []int
-	counter    int
-	terminated bool
-	Input      chan int
-	Output     chan int
-	Debug      bool
-	Finished   bool
+	memory       []int
+	counter      int
+	terminated   bool
+	relativeBase int
+	Input        chan int
+	Output       chan int
+	Debug        bool
+	Finished     bool
 }
 
 // ParseProgram - parse an intcode program from a comma separated list of ints
@@ -55,7 +61,11 @@ func ParseProgram(csv string) Program {
 
 // MakeProgram - initialize a new intcode program given initial state of memory
 func MakeProgram(initMemory []int) Program {
-	return Program{initMemory, 0, false, make(chan int), make(chan int), false, false}
+	memory := make([]int, initialMemoryCapacity)
+	for i := 0; i < len(initMemory); i++ {
+		memory[i] = initMemory[i]
+	}
+	return Program{memory, 0, false, 0, make(chan int), make(chan int), false, false}
 }
 
 // Run - run an intcode program to completion
@@ -87,6 +97,8 @@ func (program *Program) Step() {
 		program.lessThan(*params[0], *params[1], params[2])
 	case opEquals:
 		program.equals(*params[0], *params[1], params[2])
+	case opAdjustRelativeBase:
+		program.adjustRelativeBase(*params[0])
 	case opTerminate:
 		program.terminated = true
 	default:
@@ -148,6 +160,11 @@ func (program *Program) equals(a int, b int, addr *int) {
 	program.counter += 4
 }
 
+func (program *Program) adjustRelativeBase(modifier int) {
+	program.relativeBase += modifier
+	program.counter += 2
+}
+
 // Get - get a value from the program's memory
 func (program *Program) Get(addr int) int {
 	return program.memory[addr]
@@ -164,7 +181,7 @@ func (program *Program) Copy() Program {
 	for i, val := range program.memory {
 		newMemory[i] = val
 	}
-	return Program{newMemory, program.counter, program.terminated, make(chan int), make(chan int), program.Debug, program.Finished}
+	return Program{newMemory, program.counter, program.terminated, program.relativeBase, make(chan int), make(chan int), program.Debug, program.Finished}
 }
 
 func (program *Program) processCommand() (opCode int, params []*int) {
@@ -178,6 +195,8 @@ func (program *Program) processCommand() (opCode int, params []*int) {
 			params[i] = &paramValue
 		case positionMode:
 			params[i] = &program.memory[paramValue]
+		case relativeMode:
+			params[i] = &program.memory[program.relativeBase+paramValue]
 		}
 	}
 	if program.Debug {
@@ -203,15 +222,16 @@ func parseInstruction(instruction int) (opCode int, paramModes []int) {
 
 func (program *Program) debugCommand(opCode int, paramModes []int, rawParams []int) {
 	opCodeNames := map[int]string{
-		opAdd:         "Add",
-		opMultiply:    "Multiply",
-		opInput:       "Input",
-		opOutput:      "Output",
-		opJumpIfTrue:  "Jump-If-True",
-		opJumpIfFalse: "Jump-If-False",
-		opLessThan:    "Less-Than",
-		opEquals:      "Equals",
-		opTerminate:   "Terminate",
+		opAdd:                "Add",
+		opMultiply:           "Multiply",
+		opInput:              "Input",
+		opOutput:             "Output",
+		opJumpIfTrue:         "Jump-If-True",
+		opJumpIfFalse:        "Jump-If-False",
+		opLessThan:           "Less-Than",
+		opEquals:             "Equals",
+		opAdjustRelativeBase: "Adjust-Relative-Base",
+		opTerminate:          "Terminate",
 	}
 	commandStr := opCodeNames[opCode]
 	for i := 0; i < len(rawParams); i++ {
@@ -219,6 +239,8 @@ func (program *Program) debugCommand(opCode int, paramModes []int, rawParams []i
 			commandStr += " pos{" + fmt.Sprint(rawParams[i]) + "}(" + fmt.Sprint(program.memory[rawParams[i]]) + ")"
 		} else if paramModes[i] == immediateMode {
 			commandStr += " " + fmt.Sprint(rawParams[i])
+		} else if paramModes[i] == relativeMode {
+			commandStr += " rel{" + fmt.Sprint(rawParams[i]) + "}(" + fmt.Sprint(program.memory[program.relativeBase+rawParams[i]]) + ")"
 		} else {
 			commandStr += " unk{" + fmt.Sprint(rawParams[i]) + "}"
 		}
