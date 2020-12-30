@@ -53,3 +53,31 @@ func MaxIntInList(list []int) (int, int) {
 	}
 	return maxI, max
 }
+
+// IntPermutations - get all permutations of an int slice
+func IntPermutations(list []int) [][]int {
+	permutations := make([][]int, 0)
+	if len(list) == 1 {
+		permutations = append(permutations, list)
+		return permutations
+	}
+	for _, elem := range list {
+		// Make a smaller list of all other elements
+		subList := make([]int, 0, len(list)-1)
+		for _, other := range list {
+			if other != elem {
+				subList = append(subList, other)
+			}
+		}
+		// Recurse on the smaller list
+		subPermutations := IntPermutations(subList)
+		// Bolt on fixed elem to the beginning of each one
+		for _, subPermutation := range subPermutations {
+			newPermutation := make([]int, 0, len(list))
+			newPermutation = append(newPermutation, elem)
+			newPermutation = append(newPermutation, subPermutation...)
+			permutations = append(permutations, newPermutation)
+		}
+	}
+	return permutations
+}

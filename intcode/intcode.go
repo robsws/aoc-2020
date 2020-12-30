@@ -40,6 +40,7 @@ type Program struct {
 	Input      chan int
 	Output     chan int
 	Debug      bool
+	Finished   bool
 }
 
 // ParseProgram - parse an intcode program from a comma separated list of ints
@@ -54,7 +55,7 @@ func ParseProgram(csv string) Program {
 
 // MakeProgram - initialize a new intcode program given initial state of memory
 func MakeProgram(initMemory []int) Program {
-	return Program{initMemory, 0, false, make(chan int), make(chan int), false}
+	return Program{initMemory, 0, false, make(chan int), make(chan int), false, false}
 }
 
 // Run - run an intcode program to completion
@@ -63,6 +64,7 @@ func (program *Program) Run() {
 		program.Step()
 	}
 	close(program.Output)
+	program.Finished = true
 }
 
 // Step - run one execution cycle of an intcode program
@@ -162,7 +164,7 @@ func (program *Program) Copy() Program {
 	for i, val := range program.memory {
 		newMemory[i] = val
 	}
-	return Program{newMemory, program.counter, program.terminated, make(chan int), make(chan int), program.Debug}
+	return Program{newMemory, program.counter, program.terminated, make(chan int), make(chan int), program.Debug, program.Finished}
 }
 
 func (program *Program) processCommand() (opCode int, params []*int) {
