@@ -2,6 +2,7 @@ package intcode
 
 import (
 	"aoc-go/utils"
+	"fmt"
 	"log"
 	"strings"
 )
@@ -10,14 +11,22 @@ const opAdd = 1
 const opMultiply = 2
 const opInput = 3
 const opOutput = 4
+const opJumpIfTrue = 5
+const opJumpIfFalse = 6
+const opLessThan = 7
+const opEquals = 8
 const opTerminate = 99
 
 var paramCount = map[int]int{
-	opAdd:       3,
-	opMultiply:  3,
-	opInput:     1,
-	opOutput:    1,
-	opTerminate: 0,
+	opAdd:         3,
+	opMultiply:    3,
+	opInput:       1,
+	opOutput:      1,
+	opJumpIfTrue:  2,
+	opJumpIfFalse: 2,
+	opLessThan:    3,
+	opEquals:      3,
+	opTerminate:   0,
 }
 
 const positionMode = 0
@@ -30,6 +39,7 @@ type Program struct {
 	terminated bool
 	Input      chan int
 	Output     chan int
+	Debug      bool
 }
 
 // ParseProgram - parse an intcode program from a comma separated list of ints
@@ -44,7 +54,7 @@ func ParseProgram(csv string) Program {
 
 // MakeProgram - initialize a new intcode program given initial state of memory
 func MakeProgram(initMemory []int) Program {
-	return Program{initMemory, 0, false, make(chan int), make(chan int)}
+	return Program{initMemory, 0, false, make(chan int), make(chan int), false}
 }
 
 // Run - run an intcode program to completion
@@ -52,6 +62,7 @@ func (program *Program) Run() {
 	for !program.terminated {
 		program.Step()
 	}
+	close(program.Output)
 }
 
 // Step - run one execution cycle of an intcode program
@@ -66,28 +77,73 @@ func (program *Program) Step() {
 		program.input(params[0])
 	case opOutput:
 		program.output(*params[0])
+	case opJumpIfTrue:
+		program.jumpIfTrue(*params[0], *params[1])
+	case opJumpIfFalse:
+		program.jumpIfFalse(*params[0], *params[1])
+	case opLessThan:
+		program.lessThan(*params[0], *params[1], params[2])
+	case opEquals:
+		program.equals(*params[0], *params[1], params[2])
 	case opTerminate:
 		program.terminated = true
 	default:
 		log.Fatal("Invalid opcode ", program.memory[program.counter])
 	}
-	program.counter += paramCount[opCode] + 1
 }
 
-func (program *Program) add(a int, b int, resultPtr *int) {
-	*resultPtr = a + b
+func (program *Program) add(a int, b int, addr *int) {
+	*addr = a + b
+	program.counter += 4
 }
 
-func (program *Program) multiply(a int, b int, resultPtr *int) {
-	*resultPtr = a * b
+func (program *Program) multiply(a int, b int, addr *int) {
+	*addr = a * b
+	program.counter += 4
 }
 
-func (program *Program) input(toPtr *int) {
-	*toPtr = <-program.Input
+func (program *Program) input(addr *int) {
+	*addr = <-program.Input
+	program.counter += 2
 }
 
 func (program *Program) output(value int) {
 	program.Output <- value
+	program.counter += 2
+}
+
+func (program *Program) jumpIfTrue(value int, addr int) {
+	if value != 0 {
+		program.counter = addr
+	} else {
+		program.counter += 3
+	}
+}
+
+func (program *Program) jumpIfFalse(value int, addr int) {
+	if value == 0 {
+		program.counter = addr
+	} else {
+		program.counter += 3
+	}
+}
+
+func (program *Program) lessThan(a int, b int, addr *int) {
+	if a < b {
+		*addr = 1
+	} else {
+		*addr = 0
+	}
+	program.counter += 4
+}
+
+func (program *Program) equals(a int, b int, addr *int) {
+	if a == b {
+		*addr = 1
+	} else {
+		*addr = 0
+	}
+	program.counter += 4
 }
 
 // Get - get a value from the program's memory
@@ -106,7 +162,7 @@ func (program *Program) Copy() Program {
 	for i, val := range program.memory {
 		newMemory[i] = val
 	}
-	return Program{newMemory, program.counter, program.terminated, make(chan int), make(chan int)}
+	return Program{newMemory, program.counter, program.terminated, make(chan int), make(chan int), program.Debug}
 }
 
 func (program *Program) processCommand() (opCode int, params []*int) {
@@ -121,6 +177,9 @@ func (program *Program) processCommand() (opCode int, params []*int) {
 		case positionMode:
 			params[i] = &program.memory[paramValue]
 		}
+	}
+	if program.Debug {
+		program.debugCommand(opCode, paramModes, program.memory[program.counter+1:program.counter+1+paramCount[opCode]])
 	}
 	return
 }
@@ -138,4 +197,29 @@ func parseInstruction(instruction int) (opCode int, paramModes []int) {
 		instruction = (instruction - paramModes[i]) / 10
 	}
 	return
+}
+
+func (program *Program) debugCommand(opCode int, paramModes []int, rawParams []int) {
+	opCodeNames := map[int]string{
+		opAdd:         "Add",
+		opMultiply:    "Multiply",
+		opInput:       "Input",
+		opOutput:      "Output",
+		opJumpIfTrue:  "Jump-If-True",
+		opJumpIfFalse: "Jump-If-False",
+		opLessThan:    "Less-Than",
+		opEquals:      "Equals",
+		opTerminate:   "Terminate",
+	}
+	commandStr := opCodeNames[opCode]
+	for i := 0; i < len(rawParams); i++ {
+		if paramModes[i] == positionMode {
+			commandStr += " pos{" + fmt.Sprint(rawParams[i]) + "}(" + fmt.Sprint(program.memory[rawParams[i]]) + ")"
+		} else if paramModes[i] == immediateMode {
+			commandStr += " " + fmt.Sprint(rawParams[i])
+		} else {
+			commandStr += " unk{" + fmt.Sprint(rawParams[i]) + "}"
+		}
+	}
+	fmt.Println(commandStr)
 }
